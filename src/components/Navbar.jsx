@@ -14,6 +14,8 @@ export default function Navbar() {
         <li className="hover:text-gray-400 cursor-pointer">SKILLS</li>
         <li className="hover:text-gray-400 cursor-pointer">PROJECTS</li>
         <li className="hover:text-gray-400 cursor-pointer">CONTACT ME</li>
+                <li className="hover:text-gray-400 cursor-pointer">ADMIN</li>
+
       </ul>
     </nav>
   );
