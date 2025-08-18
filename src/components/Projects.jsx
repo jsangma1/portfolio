@@ -7,7 +7,7 @@ const Projects = () => {
       description:
         "EstateEase is a full-stack Property Management System designed for remote landlords to manage properties, tenants, payments, and maintenance efficiently.",
       tech: "Laravel • MySQL • PHP • Blade • HTML/CSS",
-      img: "/images/estateease.png",
+      img: "/estateease.png",
       liveDemo: "https://example.com",
       documentation: "https://example.com/docs",
     },
@@ -16,7 +16,7 @@ const Projects = () => {
       description:
         "Designed the homepage and menu interface for a story-driven game concept featuring three unique storylines.",
       tech: "FIGMA",
-      img: "/images/talesofworlds.png",
+      img: "/talesofworlds.png",
     },
     {
       name: "Another Project",
@@ -78,7 +78,9 @@ const Projects = () => {
       key={index}
       className="w-[950px] h-[459px] rounded-xl p-6 flex gap-6 shadow-lg"
       style={{
-        background: "linear-gradient(to right, #ffffff 0%, #666666 100%)",
+        background:
+  "linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(200,200,200,0.3) 30%, rgba(102,102,102,0.6) 60%, rgba(0,0,0,0.8) 100%)",
+
       }}
     >
       {/* Left Side Image */}
@@ -111,28 +113,49 @@ const Projects = () => {
     <span className="font-bold">Tech Stack:</span> {project.tech}
   </p>
   {/* Buttons */}
-  <div className="flex gap-4 mt-6">
-    {project.liveDemo && (
-      <a
-        href={project.liveDemo}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="px-4 py-2 bg-black text-white font-semibold rounded-full hover:bg-gray-800"
-      >
-        Live Demo
-      </a>
-    )}
-    {project.documentation && (
-      <a
-        href={project.documentation}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="px-4 py-2 bg-white text-black border border-black font-semibold rounded-full hover:bg-gray-200"
-      >
-        Documentation
-      </a>
-    )}
-  </div>
+<div className="flex gap-[20px] mt-6">
+  {project.liveDemo && (
+    <a
+      href={project.liveDemo}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="rounded-full flex items-center justify-center hover:bg-gray-200 transition"
+      style={{
+        width: "175px",
+        height: "38px",
+        backgroundColor: "white",
+        color: "black",
+        fontWeight: "bold",
+        fontSize: "14px",
+        border: "4px solid black",
+        fontFamily: "'Poppins', sans-serif",
+      }}
+    >
+      Live Demo
+    </a>
+  )}
+  {project.documentation && (
+    <a
+      href={project.documentation}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="rounded-full flex items-center justify-center hover:bg-gray-800 transition"
+      style={{
+        width: "175px",
+        height: "38px",
+        backgroundColor: "black",
+        color: "white",
+        fontWeight: "bold",
+        fontSize: "14px",
+        border: "4px solid white",
+        fontFamily: "'Poppins', sans-serif",
+      }}
+    >
+      Documentation
+    </a>
+  )}
+</div>
+
 </div>
 
     </div>
