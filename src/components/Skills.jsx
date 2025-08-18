@@ -22,9 +22,16 @@ export default function Skills() {
         transition={{ duration: 0.6, ease: "easeOut" }}
         viewport={{ once: true }}
       >
-        <h2 className="font-poppins font-semibold text-[24px] text-black mb-6">
-          Skills
-        </h2>
+       <h2
+  className="font-poppins font-semibold text-[24px] mb-6"
+  style={{
+    color: "#000",
+    textShadow: "4px 4px 4px rgba(255, 255, 255, 1)", // x-offset y-offset blur rgba(black, 100%)
+  }}
+>
+  Skills
+</h2>
+
 
         <div
           style={{
