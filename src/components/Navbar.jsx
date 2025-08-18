@@ -20,12 +20,13 @@ export default function Navbar() {
     >
       {/* Logo */}
       <div className="flex items-center">
-        <img
-          src="/JS.png"
-          alt="Logo"
-          className="h-8 w-auto ml-16 transition-all duration-700"
-          style={{ filter: "drop-shadow(4px 4px 4px rgba(0,0,0,1))" }}
-        />
+      <img
+  src="/JS.png"
+  alt="Logo"
+  className="h-8 w-auto ml-32 transition-all duration-700"
+  style={{ filter: "drop-shadow(4px 4px 4px rgba(0,0,0,1))" }}
+/>
+
       </div>
 
       {/* Menu */}

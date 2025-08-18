@@ -8,9 +8,9 @@ export default function Hero() {
   }, []);
 
   return (
-    <section className="relative w-screen h-[429px] bg-black text-white flex items-center overflow-hidden group">
+    <section className="relative w-full h-[429px] bg-black text-white flex items-center overflow-hidden">
       {/* Background image */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 overflow-hidden">
         <img
           src="/hero-bg.png"
           alt="Hero Background"
@@ -21,15 +21,17 @@ export default function Hero() {
         {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-black"></div>
         {/* Darken overlay on hover */}
-        <div className="absolute inset-0 bg-black/30 opacity-0 transition-opacity duration-500 group-hover:opacity-70"></div>
+        <div className="absolute inset-0 bg-black/30 opacity-0 transition-opacity duration-500 hover:opacity-70"></div>
       </div>
 
-      {/* Content */}
-      <div
-        className={`relative z-10 text-left pl-[97px] transition-all duration-1000 ${
-          loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-        }`}
-      >
+<div
+  className={`relative z-10 text-left px-6 sm:px-12 md:px-24 lg:px-32 transition-all duration-1000 ${
+    loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+  }`}
+>
+
+
+
         <h1
           className="text-5xl font-bold mb-2"
           style={{ textShadow: "4px 4px 4px rgba(0,0,0,1)" }}
