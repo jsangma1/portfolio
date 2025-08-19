@@ -11,7 +11,7 @@ export default function About() {
   return (
     <section className="py-5 bg-black w-screen flex justify-center overflow-x-hidden">
       <div
-        className={`w-[90%] max-w-[1500px] bg-[#191919] p-4 sm:p-8 rounded-[20px] flex flex-col justify-center items-center transition-all duration-1000 ${
+        className={`w-[90%] bg-[#191919] p-4 sm:p-8 rounded-[20px] flex flex-col justify-center items-center transition-all duration-1000 ${
           loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
         }`}
         style={{ height: "253px" }}
