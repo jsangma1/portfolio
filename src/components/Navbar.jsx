@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const [loaded, setLoaded] = useState(false);
@@ -8,22 +9,22 @@ export default function Navbar() {
     return () => clearTimeout(timer);
   }, []);
 
+
+  const navigate = useNavigate();
   const menuItems = ["ABOUT ME", "SKILLS", "PROJECTS", "CONTACT ME", "ADMIN"];
   const sectionIds = ["about", "skills", "projects"];
 
   const handleClick = (index) => {
     if (index < sectionIds.length) {
-      // Scroll to section
       const section = document.getElementById(sectionIds[index]);
-      if (section) {
-        section.scrollIntoView({ behavior: "smooth" });
-      }
+      if (section) section.scrollIntoView({ behavior: "smooth" });
     } else if (index === 3) {
-      // Open email client
-window.open("https://mail.google.com/mail/?view=cm&to=jsangma2002@gmail.com&su=Hello&body=Hi%20Jachi,", "_blank");
+      window.open("https://mail.google.com/mail/?view=cm&to=jsangma2002@gmail.com", "_blank");
+    } else if (index === 4) {
+      navigate("/admin"); // <-- go to login page
     }
-    // index 4 ("ADMIN") can be handled separately later
   };
+
 
   return (
     <nav
