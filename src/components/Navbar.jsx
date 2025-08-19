@@ -33,18 +33,36 @@ export default function Navbar() {
       }`}
       style={{ backgroundColor: "#191919" }}
     >
-      {/* Logo */}
-      <div className="flex items-center">
-        <img
-          src="/JS.png"
-          alt="Logo"
-          className="h-8 w-auto ml-32 transition-all duration-700"
-          style={{ filter: "drop-shadow(4px 4px 4px rgba(0,0,0,1))" }}
-        />
-      </div>
+<div
+  className="flex items-center cursor-pointer"
+  onClick={() => {
+    // Navigate to homepage first
+    navigate("/", { replace: false });
+
+    // Use a short timeout to wait for the page to render
+    setTimeout(() => {
+      const section = document.getElementById("about");
+      if (section) {
+        const yOffset = -60; // navbar height
+        const y = section.getBoundingClientRect().top + window.pageYOffset + yOffset;
+        window.scrollTo({ top: y, behavior: "smooth" });
+      }
+    }, 100);
+  }}
+>
+  <img
+    src="/JS.png"
+    alt="Logo"
+    className="h-8 w-auto ml-32 transition-all duration-700"
+    style={{ filter: "drop-shadow(4px 4px 4px rgba(0,0,0,1))" }}
+  />
+</div>
+
+
+
 
       {/* Menu */}
-      <ul className="flex gap-8 text-sm font-medium">
+<ul className="flex gap-8 text-sm font-medium text-white">
         {menuItems.map((item, index) => (
           <li
             key={item}
