@@ -1,20 +1,24 @@
-// src/components/Login.jsx
 import React, { useEffect, useState } from "react";
 import Navbar from "./Navbar";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [loaded, setLoaded] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    setLoaded(true); // trigger animations after component mounts
+    setLoaded(true);
   }, []);
+
+  const handleLogin = () => {
+    // For now: no auth check, just redirect
+    navigate("/admin");
+  };
 
   return (
     <>
-      {/* Fullscreen background */}
+      {/* Background & overlay */}
       <div className="fixed inset-0 z-0 bg-[url('/login-bg.png')] bg-cover bg-center pointer-events-none" />
-
-      {/* Top→bottom overlay */}
       <div className="fixed inset-0 z-10 bg-gradient-to-b from-black/70 to-black pointer-events-none" />
 
       {/* Navbar */}
@@ -22,7 +26,7 @@ const Login = () => {
         <Navbar />
       </div>
 
-      {/* Centered login box */}
+      {/* Login Box */}
       <div className="fixed inset-0 z-20 grid place-items-center pointer-events-none">
         <div
           className={`pointer-events-auto flex w-[800px] max-w-[92vw] border border-white/80 p-10 rounded-xl bg-black/60 backdrop-blur-sm transition-all duration-700 ease-out transform ${
@@ -36,7 +40,7 @@ const Login = () => {
               loaded ? "translate-x-0" : "-translate-x-10"
             }`}
           >
-            <h2 className="text-white text-4xl text-center mb-2 mt-4 transition-transform duration-700">
+            <h2 className="text-white text-4xl text-center mb-2 mt-4">
               LOGIN
             </h2>
 
@@ -55,6 +59,7 @@ const Login = () => {
             />
 
             <button
+              onClick={handleLogin}
               className="mt-4 bg-gray-300 text-black py-2 rounded-full font-bold transition-all duration-300 hover:scale-105 hover:shadow-[0_0_8px_rgba(255,255,255,0.8)]"
               style={{ boxShadow: "0 0 4px rgba(255,255,255,0.8)" }}
             >
@@ -71,7 +76,7 @@ const Login = () => {
             <img
               src="/JS-bg.png"
               alt="JS logo"
-              className="mb-4 w-32 h-auto transition-transform duration-700"
+              className="mb-4 w-32 h-auto"
             />
             <p className="text-white mb-4">FORGOT PASSWORD?</p>
             <button

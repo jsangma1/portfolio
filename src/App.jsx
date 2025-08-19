@@ -7,12 +7,13 @@ import About from "./components/About";
 import Skills from "./components/Skills";
 import Projects from "./components/Projects";
 import Login from "./components/Login";
+import Admin from "./components/Admin";  // import the Admin page
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Main page */}
+        {/* Main portfolio page */}
         <Route
           path="/"
           element={
@@ -25,11 +26,12 @@ function App() {
             </div>
           }
         />
+
+        {/* Login page */}
+        <Route path="/login" element={<Login />} />
+
         {/* Admin page */}
-        <Route
-          path="/admin"
-          element={<Login />}
-        />
+        <Route path="/admin" element={<Admin />} />
       </Routes>
     </Router>
   );
