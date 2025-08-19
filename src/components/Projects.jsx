@@ -60,6 +60,7 @@ const Projects = () => {
 
   return (
     <motion.div
+      id="projects"
       className="w-full bg-black pb-16"
       initial="hidden"
       whileInView="visible"
@@ -67,8 +68,15 @@ const Projects = () => {
       variants={sectionVariants}
     >
       <div className="w-[90%] mx-auto rounded-2xl p-10 min-h-[1100px] flex flex-col items-center mt-8 mb-8 bg-[#111] shadow-2xl">
-        <h2 className="text-white text-3xl font-bold mb-2">PROJECTS</h2>
-        <p className="text-gray-400 mb-8">Some of my project previews</p>
+        <h2
+          className="text-white text-3xl font-bold mb-2"
+          style={{ textShadow: "4px 4px 4px rgba(0,0,0,1)" }}
+        >
+          PROJECTS
+        </h2>
+        <p className="text-gray-400 mb-8" style={{ textShadow: "4px 4px 4px rgba(0,0,0,1)" }}>
+          Some of my project previews
+        </p>
 
         {/* Up Button */}
         <motion.button
@@ -118,16 +126,24 @@ const Projects = () => {
               {/* Right Side Content */}
               <div className="flex flex-col justify-center flex-1">
                 <h3
-                  className="text-[32px] font-extrabold text-black mb-4"
+                  className="text-[32px] font-extrabold mb-4"
                   style={{
                     fontFamily: "'Poppins', sans-serif",
-                    textShadow: "2px 2px 4px rgba(0,0,0,0.8)",
+                    textShadow: "4px 4px 4px rgba(0,0,0,1)",
                   }}
                 >
                   {project.name}
                 </h3>
-                <p className="text-white font-medium text-[16px] mb-6">{project.description}</p>
-                <p className="text-white font-medium text-[14px]">
+                <p
+                  className="text-white font-medium text-[16px] mb-6"
+                  style={{ textShadow: "4px 4px 4px rgba(0,0,0,1)" }}
+                >
+                  {project.description}
+                </p>
+                <p
+                  className="text-white font-medium text-[14px]"
+                  style={{ textShadow: "4px 4px 4px rgba(0,0,0,1)" }}
+                >
                   <span className="font-bold">Tech Stack:</span> {project.tech}
                 </p>
 
