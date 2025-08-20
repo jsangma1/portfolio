@@ -3,51 +3,69 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 export default function Navbar() {
   const [loaded, setLoaded] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation(); // Detect current path
+  const location = useLocation();
 
+  // Update login state whenever location changes
   useEffect(() => {
-    const timer = setTimeout(() => setLoaded(true), 100);
-    return () => clearTimeout(timer);
-  }, []);
-
-  const isAdminPage = location.pathname === "/admin";
-
-  // Last menu item changes depending on page
-  const menuItems = [
-    "ABOUT ME",
-    "SKILLS",
-    "PROJECTS",
-    "CONTACT ME",
-    isAdminPage ? "PORTFOLIO" : "ADMIN", // <-- key change
-  ];
+    setLoaded(true);
+    setIsLoggedIn(localStorage.getItem("loggedIn") === "true");
+  }, [location]);
 
   const sectionIds = ["about", "skills", "projects"];
 
   const handleClick = (index) => {
     if (index < sectionIds.length) {
       const section = document.getElementById(sectionIds[index]);
-      if (section) section.scrollIntoView({ behavior: "smooth" });
+      if (section)
+        section.scrollIntoView({ behavior: "smooth" });
     } else if (index === 3) {
-      window.open("https://mail.google.com/mail/?view=cm&to=jsangma2002@gmail.com", "_blank");
-    } else if (index === 4) {
-      if (isAdminPage) {
-        // PORTFOLIO on Admin page → scroll to About Me on homepage
-        navigate("/", { replace: false });
-        setTimeout(() => {
-          const section = document.getElementById("about");
-          if (section) {
-            const yOffset = -60; // navbar height
-            const y = section.getBoundingClientRect().top + window.pageYOffset + yOffset;
-            window.scrollTo({ top: y, behavior: "smooth" });
-          }
-        }, 100);
-      } else {
-        // ADMIN on other pages → go to login
-        navigate("/login");
-      }
+      window.open(
+        "https://mail.google.com/mail/?view=cm&to=jsangma2002@gmail.com",
+        "_blank"
+      );
     }
   };
+
+  const handleMenuClick = (item, index) => {
+    if (item === "ADMIN") {
+      if (isLoggedIn) {
+        navigate("/admin");
+      } else {
+        navigate("/login");
+      }
+    } else if (item === "LOGOUT") {
+      localStorage.removeItem("loggedIn");
+      setIsLoggedIn(false);
+      navigate("/"); // back to main page
+    } else {
+      handleClick(index);
+    }
+  };
+
+  const handleLogoClick = () => {
+    navigate("/", { replace: false });
+    setTimeout(() => {
+      const section = document.getElementById("hero");
+      if (section) {
+        const yOffset = -60;
+        const y =
+          section.getBoundingClientRect().top + window.pageYOffset + yOffset;
+        window.scrollTo({ top: y, behavior: "smooth" });
+      }
+    }, 100);
+  };
+
+  // Build menu
+  const menuItems = [
+    "ABOUT ME",
+    "SKILLS",
+    "PROJECTS",
+    "CONTACT ME",
+    "ADMIN", // always show ADMIN
+    ...(isLoggedIn ? ["LOGOUT"] : []), // show LOGOUT only if logged in
+  ];
 
   return (
     <nav
@@ -56,20 +74,7 @@ export default function Navbar() {
       }`}
       style={{ backgroundColor: "#191919" }}
     >
-      <div
-        className="flex items-center cursor-pointer"
-        onClick={() => {
-          navigate("/", { replace: false });
-          setTimeout(() => {
-            const section = document.getElementById("about");
-            if (section) {
-              const yOffset = -60;
-              const y = section.getBoundingClientRect().top + window.pageYOffset + yOffset;
-              window.scrollTo({ top: y, behavior: "smooth" });
-            }
-          }, 100);
-        }}
-      >
+      <div className="flex items-center cursor-pointer" onClick={handleLogoClick}>
         <img
           src="/JS.png"
           alt="Logo"
@@ -82,7 +87,7 @@ export default function Navbar() {
         {menuItems.map((item, index) => (
           <li
             key={item}
-            onClick={() => handleClick(index)}
+            onClick={() => handleMenuClick(item, index)}
             className={`hover:text-gray-400 cursor-pointer transition-colors duration-300 transform transition-all ${
               loaded ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
             }`}

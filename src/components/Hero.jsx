@@ -8,7 +8,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <section className="relative w-full h-[429px] bg-black text-white flex items-center overflow-hidden">
+    <section id= "hero" className="relative w-full h-[429px] bg-black text-white flex items-center overflow-hidden">
       {/* Background image */}
       <div className="absolute inset-0 overflow-hidden">
         <img
