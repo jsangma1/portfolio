@@ -28,9 +28,9 @@ const Admin = () => {
 
   // Manage section states
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedItem, setSelectedItem] = useState("");
-// State
-const [category, setCategory] = useState(""); // empty by default
+  const [selectedItem, setSelectedItem] = useState(null); // for skills, store index
+  const [category, setCategory] = useState(""); // empty by default
+
   // Animate page load
   useEffect(() => {
     const timer = setTimeout(() => setLoaded(true), 200);
@@ -51,20 +51,26 @@ const [category, setCategory] = useState(""); // empty by default
   };
 
   const handleDelete = () => {
-    if (!selectedItem) return;
+    if (selectedItem === null) return;
     if (category === "skills") {
-      const newSkills = skillImage.filter((f) => f.name !== selectedItem);
+      const newSkills = skillImage.filter((_, idx) => idx !== selectedItem);
       setSkillImage(newSkills);
-    } else {
+    } else if (category === "projects") {
       if (project.title === selectedItem) {
         setProject({ ...project, title: "" });
       }
     }
-    setSelectedItem("");
-    alert(`${selectedItem} deleted from ${category}!`);
+    setSelectedItem(null);
+    alert(`Deleted item from ${category}!`);
   };
 
-  // Filtered items based on category and prefix search
+  
+
+  const handleSkillUpload = (e) => {
+    const files = Array.from(e.target.files);
+    setSkillImage((prev) => [...prev, ...files]); // append instead of overwrite
+  };
+
   const filteredItems =
     category === "skills"
       ? skillImage
@@ -114,7 +120,7 @@ const [category, setCategory] = useState(""); // empty by default
               <input
                 type="file"
                 className="flex-1 bg-white text-black rounded-lg p-2"
-                onChange={(e) => setSkillImage(Array.from(e.target.files))}
+                onChange={handleSkillUpload}
                 multiple
               />
 
@@ -129,12 +135,19 @@ const [category, setCategory] = useState(""); // empty by default
             {skillImage.length > 0 && (
               <div className="flex flex-wrap gap-4 mt-4">
                 {skillImage.map((file, idx) => (
-                  <img
+                  <div
                     key={idx}
-                    src={URL.createObjectURL(file)}
-                    alt={`Skill ${idx + 1}`}
-                    className="w-24 h-24 object-cover rounded-lg shadow-md"
-                  />
+                    onClick={() => setSelectedItem(idx)}
+                    className={`w-24 h-24 rounded-lg shadow-md overflow-hidden cursor-pointer border-4 ${
+                      selectedItem === idx ? "border-red-500" : "border-transparent"
+                    }`}
+                  >
+                    <img
+                      src={URL.createObjectURL(file)}
+                      alt={`Skill ${idx + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
                 ))}
               </div>
             )}
@@ -267,49 +280,48 @@ const [category, setCategory] = useState(""); // empty by default
           </div>
         </section>
 
-{/* Manage Skills/Projects */}
-<section
-  className={`w-screen flex justify-center transform transition-all duration-1000 delay-800 ${
-    loaded ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
-  }`}
->
-  <div className="w-[90%] bg-neutral-900 p-8 rounded-2xl shadow-lg">
-    <h2 className="text-2xl font-bold text-center mb-6">
-      MANAGE SKILLS / PROJECTS
-    </h2>
+        {/* Manage Skills/Projects */}
+        <section
+          className={`w-screen flex justify-center transform transition-all duration-1000 delay-800 ${
+            loaded ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+          }`}
+        >
+          <div className="w-[90%] bg-neutral-900 p-8 rounded-2xl shadow-lg">
+            <h2 className="text-2xl font-bold text-center mb-6">
+              MANAGE SKILLS / PROJECTS
+            </h2>
 
-    <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-      {/* Category Selector */}
-      <select
-        className="p-3 rounded-full border border-gray-400 outline-none text-black"
-        value={category}
-        onChange={(e) => setCategory(e.target.value)}
-      >
-        <option value="">Select Category</option>
-        <option value="skills">Skills</option>
-        <option value="projects">Projects</option>
-      </select>
+            <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+              {/* Category Selector */}
+              <select
+                className="p-3 rounded-full border border-gray-400 outline-none text-black"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+              >
+                <option value="">Select Category</option>
+                <option value="skills">Skills</option>
+                <option value="projects">Projects</option>
+              </select>
 
-      {/* Search Input */}
-      <input
-        type="text"
-        placeholder="Search..."
-        className="flex-1 p-3 rounded-full border border-gray-400 outline-none text-black"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-      />
+              {/* Search Input */}
+              <input
+                type="text"
+                placeholder="Search..."
+                className="flex-1 p-3 rounded-full border border-gray-400 outline-none text-black"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
 
-      {/* Delete Button */}
-      <button
-        className="bg-white text-black py-2 px-6 rounded-full font-bold hover:scale-105 transition"
-        onClick={handleDelete}
-      >
-        Delete
-      </button>
-    </div>
-  </div>
-</section>
-
+              {/* Delete Button */}
+              <button
+                className="bg-white text-black py-2 px-6 rounded-full font-bold hover:scale-105 transition"
+                onClick={handleDelete}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   );

@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import skills from "../data/skills";
 
 export default function SkillCarousel() {
   const containerRef = useRef(null);
+  const [skills, setSkills] = useState([]);
   const [isPaused, setIsPaused] = useState(false);
 
   const isDragging = useRef(false);
@@ -10,6 +10,15 @@ export default function SkillCarousel() {
   const scrollLeftStart = useRef(0);
   const scrollSpeed = 0.5;
 
+  // Fetch skills from backend
+  useEffect(() => {
+    fetch("http://localhost:8080/api/skills")
+      .then((res) => res.json())
+      .then((data) => setSkills(data))
+      .catch((err) => console.error("Failed to fetch skills:", err));
+  }, []);
+
+  // Continuous scroll
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -18,7 +27,6 @@ export default function SkillCarousel() {
     container.innerHTML += container.innerHTML;
 
     let animationFrame;
-
     const scroll = () => {
       if (!isPaused && !isDragging.current) {
         container.scrollLeft += scrollSpeed;
@@ -58,7 +66,7 @@ export default function SkillCarousel() {
     <div
       ref={containerRef}
       className="flex items-center overflow-hidden whitespace-nowrap cursor-grab"
-      style={{ width: "100%", height: "33px" }}
+      style={{ width: "100%", height: "80px" }}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={endDrag}
       onMouseDown={(e) => startDrag(e.pageX)}
@@ -71,7 +79,7 @@ export default function SkillCarousel() {
       {skills.map((skill, index) => (
         <img
           key={index}
-          src={skill.icon}
+          src={`http://localhost:8080/${skill.path}`} // adjust path if needed
           alt={skill.name}
           className="h-16 w-auto object-contain"
           style={{ marginRight: "32px" }}
