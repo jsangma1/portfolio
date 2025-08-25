@@ -9,14 +9,16 @@ const Admin = () => {
   const [skillImage, setSkillImage] = useState([]);
 
   // Projects state
-  const [project, setProject] = useState({
-    title: "",
-    titleColor: "#000000",
-    demo: "",
-    docs: "",
-    image: null,
-    description: "",
-  });
+const [project, setProject] = useState({
+  title: "",
+  titleColor: "#000000",
+  demo: "",
+  docs: "",
+  image: null,
+  description: "",
+  techStack: "", // <-- added
+});
+
 
   // About me state
   const [about, setAbout] = useState({
@@ -45,10 +47,39 @@ const Admin = () => {
     }));
   };
 
-  const handleAboutChange = (e) => {
-    const { name, value } = e.target;
-    setAbout((prev) => ({ ...prev, [name]: value }));
-  };
+const handleAboutChange = (e) => {
+  const { name, value } = e.target;
+  setAbout((prev) => ({ ...prev, [name]: value }));
+};
+
+
+const handleUpdate = async () => {
+  try {
+    const res = await fetch("http://localhost:8080/api/users/update", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        username: about.username,
+        password: about.password,
+        email: about.contact,
+        bio: about.bio
+      })
+    });
+
+    if (res.ok) {
+      alert("Information updated successfully!");
+    } else {
+      const errorData = await res.json();
+      alert("Update failed: " + errorData.message);
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Something went wrong!");
+  }
+};
+
 
   const handleDelete = () => {
     if (selectedItem === null) return;
@@ -140,6 +171,49 @@ const handleSkillSubmit = async (e) => {
 };
 
 
+
+const handleProjectSubmit = async (e) => {
+  e.preventDefault();
+
+  const formData = new FormData();
+  formData.append("title", project.title);
+  formData.append("titleColor", project.titleColor);
+  formData.append("demo", project.demo);
+  formData.append("docs", project.docs);
+  formData.append("description", project.description);
+  formData.append("techStack", project.techStack); // <-- added
+  if (project.image) formData.append("image", project.image);
+
+  try {
+    const response = await fetch("http://localhost:8080/api/admin/projects", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) throw new Error("Failed to submit project");
+
+    const savedProject = await response.json();
+    alert(`Project "${savedProject.title}" added successfully!`);
+
+    // Reset form
+    setProject({
+      title: "",
+      titleColor: "#000000",
+      demo: "",
+      docs: "",
+      image: null,
+      description: "",
+      techStack: "", // <-- reset
+    });
+  } catch (err) {
+    console.error(err);
+    alert("Error submitting project: " + err.message);
+  }
+};
+
+
+
+
   const filteredItems =
     category === "skills"
       ? skillImage
@@ -221,78 +295,95 @@ const handleSkillSubmit = async (e) => {
         </section>
 
         {/* Projects */}
-        <section
-          className={`w-screen flex justify-center transform transition-all duration-1000 delay-400 ${
-            loaded ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
-          }`}
-        >
-          <div className="w-[90%] bg-gray-200 text-black p-8 rounded-2xl shadow-lg">
-            <h2 className="text-2xl font-bold text-center mb-6">PROJECTS</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="flex flex-col gap-3">
-                <input
-                  type="text"
-                  name="title"
-                  placeholder="Title"
-                  value={project.title}
-                  onChange={handleProjectChange}
-                  className="rounded-full p-2 px-4 border border-gray-400 outline-none"
-                />
+       <section
+  className={`w-screen flex justify-center transform transition-all duration-1000 delay-400 ${
+    loaded ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+  }`}
+>
+  <div className="w-[90%] bg-gray-200 text-black p-8 rounded-2xl shadow-lg">
+    <h2 className="text-2xl font-bold text-center mb-6">PROJECTS</h2>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Left column */}
+      <div className="flex flex-col gap-3">
+        <input
+          type="text"
+          name="title"
+          placeholder="Title"
+          value={project.title}
+          onChange={handleProjectChange}
+          className="rounded-full p-2 px-4 border border-gray-400 outline-none"
+        />
 
-                {/* Color Picker */}
-                <div className="flex items-center gap-2">
-                  <label className="font-semibold">Title Color:</label>
-                  <input
-                    type="color"
-                    name="titleColor"
-                    value={project.titleColor}
-                    onChange={handleProjectChange}
-                    className="w-12 h-8 border border-gray-400 rounded-full cursor-pointer"
-                  />
-                </div>
+        {/* Color Picker */}
+        <div className="flex items-center gap-2">
+          <label className="font-semibold">Title Color:</label>
+          <input
+            type="color"
+            name="titleColor"
+            value={project.titleColor}
+            onChange={handleProjectChange}
+            className="w-12 h-8 border border-gray-400 rounded-full cursor-pointer"
+          />
+        </div>
 
-                <input
-                  type="text"
-                  name="demo"
-                  placeholder="Live Demo"
-                  value={project.demo}
-                  onChange={handleProjectChange}
-                  className="rounded-full p-2 px-4 border border-gray-400 outline-none"
-                />
-                <input
-                  type="text"
-                  name="docs"
-                  placeholder="Documentation"
-                  value={project.docs}
-                  onChange={handleProjectChange}
-                  className="rounded-full p-2 px-4 border border-gray-400 outline-none"
-                />
+        <input
+          type="text"
+          name="demo"
+          placeholder="Live Demo"
+          value={project.demo}
+          onChange={handleProjectChange}
+          className="rounded-full p-2 px-4 border border-gray-400 outline-none"
+        />
+        <input
+          type="text"
+          name="docs"
+          placeholder="Documentation"
+          value={project.docs}
+          onChange={handleProjectChange}
+          className="rounded-full p-2 px-4 border border-gray-400 outline-none"
+        />
 
-                <input
-                  type="file"
-                  name="image"
-                  accept="image/*"
-                  onChange={handleProjectChange}
-                  className="rounded-full p-2 px-4 border border-gray-400 outline-none"
-                />
-              </div>
+        <input
+          type="file"
+          name="image"
+          accept="image/*"
+          onChange={handleProjectChange}
+          className="rounded-full p-2 px-4 border border-gray-400 outline-none"
+        />
+      </div>
 
-              <textarea
-                name="description"
-                placeholder="Description"
-                value={project.description}
-                onChange={handleProjectChange}
-                className="w-full h-48 p-4 border border-gray-400 rounded-xl outline-none resize-none"
-              />
-            </div>
+      {/* Right column */}
+      <div className="flex flex-col gap-3">
+        <textarea
+          name="description"
+          placeholder="Description"
+          value={project.description}
+          onChange={handleProjectChange}
+          className="w-full h-48 p-4 border border-gray-400 rounded-xl outline-none resize-none"
+        />
 
-            <div className="flex justify-center mt-6">
-              <button className="bg-black text-white py-3 px-8 rounded-full font-bold hover:scale-105 transition">
-                Submit Project
-              </button>
-            </div>
-          </div>
-        </section>
+        {/* Tech Stack input under description */}
+        <input
+          type="text"
+          name="techStack"
+          placeholder="Tech Stack (e.g. React • Tailwind • Node.js)"
+          value={project.techStack}
+          onChange={handleProjectChange}
+          className="rounded-full p-2 px-4 border border-gray-400 outline-none"
+        />
+      </div>
+    </div>
+
+    <div className="flex justify-center mt-6">
+      <button
+        onClick={handleProjectSubmit}
+        className="bg-black text-white py-3 px-8 rounded-full font-bold hover:scale-105 transition"
+      >
+        Submit Project
+      </button>
+    </div>
+  </div>
+</section>
 
         {/* About Me */}
         <section
@@ -339,9 +430,13 @@ const handleSkillSubmit = async (e) => {
             </div>
 
             <div className="flex justify-center mt-6">
-              <button className="bg-white text-black py-3 px-8 rounded-full font-bold hover:scale-105 transition">
-                Update Information
-              </button>
+             <button
+  className="bg-white text-black py-3 px-8 rounded-full font-bold hover:scale-105 transition"
+  onClick={handleUpdate}
+>
+  Update Information
+</button>
+
             </div>
           </div>
         </section>

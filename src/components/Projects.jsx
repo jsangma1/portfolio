@@ -1,52 +1,45 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const Projects = () => {
-  const projects = [
-    {
-      name: "Estate Ease",
-      description:
-        "EstateEase is a full-stack Property Management System designed for remote landlords to manage properties, tenants, payments, and maintenance efficiently.",
-      tech: "Laravel • MySQL • PHP • Blade • HTML/CSS",
-      img: "/estateease.png",
-      liveDemo: "https://example.com",
-      documentation: "https://example.com/docs",
-    },
-    {
-      name: "Tales of Worlds",
-      description:
-        "Designed the homepage and menu interface for a story-driven game concept featuring three unique storylines.",
-      tech: "FIGMA",
-      img: "/talesofworlds.png",
-    },
-    {
-      name: "Another Project",
-      description: "A short description for another project goes here.",
-      tech: "React • Tailwind • Node.js",
-      img: "/images/project3.png",
-      liveDemo: "https://example.com",
-    },
-    {
-      name: "Fourth Project",
-      description: "Another one just to test scrolling.",
-      tech: "Vue • Firebase",
-      img: "/images/project4.png",
-    },
-  ];
-
+  const [projects, setProjects] = useState([]);
   const [startIndex, setStartIndex] = useState(0);
 
+  // Fetch projects from backend
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/api/projects");
+        const data = await response.json();
+        setProjects(data);
+      } catch (err) {
+        console.error("Failed to fetch projects:", err);
+      }
+    };
+    fetchProjects();
+  }, []);
+
+  // Looping navigation
   const handleUp = () => {
-    setStartIndex((prev) => (prev === 0 ? projects.length - 2 : prev - 2));
+    if (projects.length === 0) return;
+    setStartIndex((prev) => (prev - 2 + projects.length) % projects.length);
   };
 
   const handleDown = () => {
-    setStartIndex((prev) => (prev + 2 >= projects.length ? 0 : prev + 2));
+    if (projects.length === 0) return;
+    setStartIndex((prev) => (prev + 2) % projects.length);
+  };
+
+  // Always return 2 visible projects, wrapping around if necessary
+  const getVisibleProjects = () => {
+    if (projects.length === 0) return [];
+    const first = projects[startIndex % projects.length];
+    const second = projects[(startIndex + 1) % projects.length];
+    return [first, second];
   };
 
   const gradient = "linear-gradient(135deg, #ffffff 0%, #696969 65%, #000000 100%)";
 
-  // Animation variants
   const sectionVariants = {
     hidden: { opacity: 0, y: 50 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.8 } },
@@ -61,28 +54,31 @@ const Projects = () => {
   return (
     <motion.div
       id="projects"
-      className="w-full bg-black pb-16"
+      className="w-full bg-black pb-16 relative"
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, amount: 0.2 }}
       variants={sectionVariants}
     >
-      <div className="w-[90%] mx-auto rounded-2xl p-10 min-h-[1100px] flex flex-col items-center mt-8 mb-8 bg-[#111] shadow-2xl">
+      <div className="w-[90%] mx-auto rounded-2xl p-10 min-h-[900px] flex flex-col items-center mt-8 mb-8 bg-[#111] shadow-2xl relative">
         <h2
           className="text-white text-3xl font-bold mb-2"
           style={{ textShadow: "4px 4px 4px rgba(0,0,0,1)" }}
         >
           PROJECTS
         </h2>
-        <p className="text-gray-400 mb-8" style={{ textShadow: "4px 4px 4px rgba(0,0,0,1)" }}>
+        <p
+          className="text-gray-400 mb-4"
+          style={{ textShadow: "4px 4px 4px rgba(0,0,0,1)" }}
+        >
           Some of my project previews
         </p>
 
         {/* Up Button */}
         <motion.button
           onClick={handleUp}
-          whileHover={{ scale: 1.1 }}
-          className="mb-4 w-12 h-12 rounded-full flex items-center justify-center overflow-hidden p-0 border-0 focus:outline-none"
+          whileHover={{ scale: 1.05 }}
+          className="mb-6 w-12 h-12 rounded-full flex items-center justify-center p-0 border-0 focus:outline-none"
           style={{ background: gradient }}
           aria-label="Previous projects"
           title="Previous"
@@ -100,10 +96,10 @@ const Projects = () => {
 
         {/* Projects */}
         <AnimatePresence initial={false}>
-          {projects.slice(startIndex, startIndex + 2).map((project, index) => (
+          {getVisibleProjects().map((project) => (
             <motion.div
-              key={project.name}
-              className="w-[950px] h-[459px] rounded-xl p-6 flex gap-6 shadow-lg mb-6"
+              key={project.id}
+              className="w-full md:w-[950px] h-[350px] rounded-xl p-6 flex flex-col md:flex-row gap-6 shadow-lg mb-6"
               style={{
                 background:
                   "linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(200,200,200,0.3) 30%, rgba(102,102,102,0.6) 60%, rgba(0,0,0,0.8) 100%)",
@@ -114,77 +110,81 @@ const Projects = () => {
               exit="exit"
               layout
             >
-              {/* Left Side Image */}
-              <div className="w-[341px] h-[417px] overflow-hidden flex justify-center items-center bg-black rounded-lg">
+              {/* Image */}
+              <div
+                className="flex justify-center items-center rounded-lg overflow-hidden flex-shrink-0"
+                style={{ width: "341px", height: "270px" }}
+              >
                 <img
-                  src={project.img}
-                  alt={project.name}
-                  className="w-full h-full object-cover"
+                  src={`http://localhost:8080${project.imagePath}`}
+                  alt={project.title}
+                  className="max-w-full max-h-full object-contain"
                 />
               </div>
 
               {/* Right Side Content */}
               <div className="flex flex-col justify-center flex-1">
                 <h3
-                  className="text-[32px] font-extrabold mb-4"
+                  className="text-[28px] font-extrabold mb-3"
                   style={{
                     fontFamily: "'Poppins', sans-serif",
                     textShadow: "4px 4px 4px rgba(0,0,0,1)",
+                    color: project.titleColor,
                   }}
                 >
-                  {project.name}
+                  {project.title}
                 </h3>
                 <p
-                  className="text-white font-medium text-[16px] mb-6"
+                  className="text-white font-medium text-[14px] mb-4"
                   style={{ textShadow: "4px 4px 4px rgba(0,0,0,1)" }}
                 >
                   {project.description}
                 </p>
                 <p
-                  className="text-white font-medium text-[14px]"
+                  className="text-white font-medium text-[12px]"
                   style={{ textShadow: "4px 4px 4px rgba(0,0,0,1)" }}
                 >
-                  <span className="font-bold">Tech Stack:</span> {project.tech}
+                  <span className="font-bold">Tech Stack:</span> {project.techStack}
                 </p>
 
                 {/* Buttons */}
-                <div className="flex gap-[20px] mt-6">
-                  {project.liveDemo && (
+                <div className="flex gap-4 mt-4 flex-wrap">
+                  {project.demo && (
                     <motion.a
-                      href={project.liveDemo}
+                      href={project.demo}
                       target="_blank"
                       rel="noopener noreferrer"
                       whileHover={{ scale: 1.05 }}
                       className="rounded-full flex items-center justify-center transition"
                       style={{
-                        width: "175px",
-                        height: "38px",
+                        width: "150px",
+                        height: "32px",
                         backgroundColor: "white",
                         color: "black",
                         fontWeight: "bold",
-                        fontSize: "14px",
-                        border: "4px solid black",
+                        fontSize: "13px",
+                        border: "3px solid black",
                         fontFamily: "'Poppins', sans-serif",
                       }}
                     >
                       Live Demo
                     </motion.a>
                   )}
-                  {project.documentation && (
+                  {project.docs && (
                     <motion.a
-                      href={project.documentation}
+                      href={project.docs}
                       target="_blank"
                       rel="noopener noreferrer"
                       whileHover={{ scale: 1.05 }}
                       className="rounded-full flex items-center justify-center transition"
                       style={{
-                        width: "175px",
-                        height: "38px",
+                        width: "150px",
+                        height: "32px",
                         backgroundColor: "black",
                         color: "white",
                         fontWeight: "bold",
-                        fontSize: "14px",
-                        border: "4px solid white",
+                        fontSize: "13px",
+                        border: "3px solid white",
                         fontFamily: "'Poppins', sans-serif",
                       }}
                     >
@@ -200,8 +200,8 @@ const Projects = () => {
         {/* Down Button */}
         <motion.button
           onClick={handleDown}
-          whileHover={{ scale: 1.1 }}
-          className="mt-4 w-12 h-12 rounded-full flex items-center justify-center overflow-hidden p-0 border-0 focus:outline-none"
+          whileHover={{ scale: 1.05 }}
+          className="mt-2 w-12 h-12 rounded-full flex items-center justify-center p-0 border-0 focus:outline-none"
           style={{ background: gradient }}
           aria-label="Next projects"
           title="Next"
