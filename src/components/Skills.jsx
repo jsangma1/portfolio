@@ -21,19 +21,21 @@ export default function Skills() {
         transition={{ duration: 0.6, ease: "easeOut" }}
         viewport={{ once: true }}
       >
-        <h2
-          className="font-poppins font-semibold text-[24px] mb-6"
-          style={{
-            color: "#000",
-            textShadow: "4px 4px 4px rgba(255, 255, 255, 1)",
-          }}
-        >
-          Skills
-        </h2>
+   <h2
+  className="font-poppins font-bold text-[24px] mb-2"
+  style={{
+    color: "#000",
+    textShadow: "4px 4px 4px rgba(255, 255, 255, 1)",
+  }}
+>
+  Skills
+</h2>
+
+
 
         <div
           style={{
-            height: "80px", // increased height for images
+            height: "50px", // increased height for images
             width: "100%",
             display: "flex",
             justifyContent: "center",

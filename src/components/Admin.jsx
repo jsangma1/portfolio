@@ -28,8 +28,8 @@ const Admin = () => {
 
   // Manage section states
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedItem, setSelectedItem] = useState(null); // for skills, store index
-  const [category, setCategory] = useState(""); // empty by default
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [category, setCategory] = useState("");
 
   // Animate page load
   useEffect(() => {
@@ -64,12 +64,81 @@ const Admin = () => {
     alert(`Deleted item from ${category}!`);
   };
 
-  
-
   const handleSkillUpload = (e) => {
     const files = Array.from(e.target.files);
-    setSkillImage((prev) => [...prev, ...files]); // append instead of overwrite
+
+    // Check for duplicates based on file name
+    const existingFileNames = skillImage.map((f) => f.name);
+
+    const newFiles = [];
+    const duplicates = [];
+
+    files.forEach((file) => {
+      if (existingFileNames.includes(file.name)) {
+        duplicates.push(file.name);
+      } else {
+        newFiles.push(file);
+      }
+    });
+
+    if (duplicates.length > 0) {
+      alert(
+        `These files were skipped because they already exist: ${duplicates.join(
+          ", "
+        )}`
+      );
+    }
+
+    // Append only unique files
+    setSkillImage((prev) => [...prev, ...newFiles]);
   };
+
+const handleSkillSubmit = async (e) => {
+  e.preventDefault();
+  if (skillImage.length === 0) {
+    alert("No skills selected for upload!");
+    return;
+  }
+
+  const formData = new FormData();
+  skillImage.forEach((file) => formData.append("files", file));
+
+  try {
+    const response = await fetch("http://localhost:8080/api/admin/skills", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to upload skills");
+    }
+
+    const savedSkills = await response.json(); // this is the array of skills now in DB
+    const savedNames = savedSkills.map((s) => s.name);
+
+    const attemptedNames = skillImage.map((f) => f.name);
+    const actuallySaved = attemptedNames.filter((n) => savedNames.includes(n));
+    const skipped = attemptedNames.filter((n) => !savedNames.includes(n));
+
+    if (actuallySaved.length > 0 && skipped.length === 0) {
+      alert(`Skills uploaded successfully: ${actuallySaved.join(", ")}`);
+    } else if (actuallySaved.length > 0 && skipped.length > 0) {
+      alert(
+        `Some skills uploaded: ${actuallySaved.join(
+          ", "
+        )}. Skipped (already exist): ${skipped.join(", ")}`
+      );
+    } else {
+      alert(`All skills skipped (already exist): ${skipped.join(", ")}`);
+    }
+
+    setSkillImage([]); // reset after submit
+  } catch (err) {
+    console.error(err);
+    alert("Error uploading skills: " + err.message);
+  }
+};
+
 
   const filteredItems =
     category === "skills"
@@ -107,10 +176,7 @@ const Admin = () => {
           <div className="w-[90%] bg-neutral-900 p-6 rounded-2xl shadow-lg">
             <h2 className="text-2xl font-bold text-center mb-6">SKILLS</h2>
             <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                console.log("Skills uploaded:", skillImage);
-              }}
+              onSubmit={handleSkillSubmit}
               className="flex flex-col md:flex-row items-center justify-center gap-4"
             >
               <label className="font-bold whitespace-nowrap">

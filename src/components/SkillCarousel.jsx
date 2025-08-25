@@ -12,21 +12,25 @@ export default function SkillCarousel() {
 
   // Fetch skills from backend
   useEffect(() => {
-    fetch("http://localhost:8080/api/skills")
-      .then((res) => res.json())
-      .then((data) => setSkills(data))
-      .catch((err) => console.error("Failed to fetch skills:", err));
+    const fetchSkills = async () => {
+      try {
+        const res = await fetch("http://localhost:8080/api/skills");
+        const data = await res.json();
+        setSkills(data);
+      } catch (err) {
+        console.error("Failed to fetch skills:", err);
+      }
+    };
+    fetchSkills();
   }, []);
 
   // Continuous scroll
   useEffect(() => {
     const container = containerRef.current;
-    if (!container) return;
-
-    // Duplicate content for seamless scroll
-    container.innerHTML += container.innerHTML;
+    if (!container || skills.length === 0) return;
 
     let animationFrame;
+
     const scroll = () => {
       if (!isPaused && !isDragging.current) {
         container.scrollLeft += scrollSpeed;
@@ -39,7 +43,7 @@ export default function SkillCarousel() {
 
     animationFrame = requestAnimationFrame(scroll);
     return () => cancelAnimationFrame(animationFrame);
-  }, [isPaused]);
+  }, [isPaused, skills]);
 
   // Drag handlers
   const startDrag = (x) => {
@@ -62,11 +66,29 @@ export default function SkillCarousel() {
     containerRef.current.style.cursor = "grab";
   };
 
+  const skillElements = skills.map((skill, index) => (
+    <img
+      key={index}
+      src={`http://localhost:8080${skill.path}`}
+      alt={skill.name}
+      style={{
+        height: "33px",       // original size
+        width: "auto",
+        marginRight: "30px",  // gap
+        display: "inline-block",
+      }}
+      draggable={false}
+    />
+  ));
+
+  // Repeat items twice for seamless scrolling
+  const repeatedSkills = [...skillElements, ...skillElements];
+
   return (
     <div
       ref={containerRef}
       className="flex items-center overflow-hidden whitespace-nowrap cursor-grab"
-      style={{ width: "100%", height: "80px" }}
+      style={{ width: "100%", height: "33px" }} // container matches image height
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={endDrag}
       onMouseDown={(e) => startDrag(e.pageX)}
@@ -76,16 +98,7 @@ export default function SkillCarousel() {
       onTouchMove={(e) => moveDrag(e.touches[0].pageX)}
       onTouchEnd={endDrag}
     >
-      {skills.map((skill, index) => (
-        <img
-          key={index}
-          src={`http://localhost:8080/${skill.path}`} // adjust path if needed
-          alt={skill.name}
-          className="h-16 w-auto object-contain"
-          style={{ marginRight: "32px" }}
-          draggable={false}
-        />
-      ))}
+      {repeatedSkills}
     </div>
   );
 }
