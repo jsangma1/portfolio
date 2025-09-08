@@ -9,9 +9,12 @@ const Login = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (localStorage.getItem("loggedIn") === "true") navigate("/admin");
-    setLoaded(true);
-  }, [navigate]);
+  setLoaded(false);       // reset
+  const timer = setTimeout(() => setLoaded(true), 50); // trigger animation
+  return () => clearTimeout(timer);
+}, []);
+
+
 
   const handleLogin = async () => {
     if (!username || !password) {

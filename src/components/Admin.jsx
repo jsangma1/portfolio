@@ -7,6 +7,13 @@ import axios from "axios";
 const Admin = () => {
   const [loaded, setLoaded] = useState(false);
 
+useEffect(() => {
+  setLoaded(false);
+  const timer = setTimeout(() => setLoaded(true), 50);
+  return () => clearTimeout(timer);
+}, []);
+
+
   // Skills state (multiple images)
   const [skillImage, setSkillImage] = useState([]);
 
