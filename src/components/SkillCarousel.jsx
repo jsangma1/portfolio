@@ -16,11 +16,12 @@ export default function SkillCarousel() {
       try {
         const res = await fetch("http://localhost:8080/api/skills");
         const data = await res.json();
-        setSkills(data);
+        setSkills(data); // data should be an array of {name, path}
       } catch (err) {
         console.error("Failed to fetch skills:", err);
       }
     };
+
     fetchSkills();
   }, []);
 
@@ -42,6 +43,7 @@ export default function SkillCarousel() {
     };
 
     animationFrame = requestAnimationFrame(scroll);
+
     return () => cancelAnimationFrame(animationFrame);
   }, [isPaused, skills]);
 
@@ -66,29 +68,27 @@ export default function SkillCarousel() {
     containerRef.current.style.cursor = "grab";
   };
 
+  // Map skills to images
   const skillElements = skills.map((skill, index) => (
     <img
       key={index}
       src={`http://localhost:8080${skill.path}`}
       alt={skill.name}
+      className="inline-block"
       style={{
-        height: "33px",       // original size
-        width: "auto",
-        marginRight: "30px",  // gap
-        display: "inline-block",
+        height: "33px", // carousel height
+        width: "auto", // preserve original aspect ratio
+        marginRight: "30px", // gap
       }}
       draggable={false}
     />
   ));
 
-  // Repeat items twice for seamless scrolling
-  const repeatedSkills = [...skillElements, ...skillElements];
-
   return (
     <div
       ref={containerRef}
       className="flex items-center overflow-hidden whitespace-nowrap cursor-grab"
-      style={{ width: "100%", height: "33px" }} // container matches image height
+      style={{ width: "100%", height: "33px" }} // match carousel height
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={endDrag}
       onMouseDown={(e) => startDrag(e.pageX)}
@@ -98,7 +98,8 @@ export default function SkillCarousel() {
       onTouchMove={(e) => moveDrag(e.touches[0].pageX)}
       onTouchEnd={endDrag}
     >
-      {repeatedSkills}
+      {skillElements}
+      {skillElements} {/* duplicate for seamless scroll */}
     </div>
   );
 }

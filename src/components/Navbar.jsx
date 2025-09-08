@@ -4,13 +4,28 @@ import { useNavigate, useLocation } from "react-router-dom";
 export default function Navbar() {
   const [loaded, setLoaded] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [contactEmail, setContactEmail] = useState(""); // dynamic email from DB
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Update login state whenever location changes
+  // Update login state and fetch email whenever location changes
   useEffect(() => {
     setLoaded(true);
     setIsLoggedIn(localStorage.getItem("loggedIn") === "true");
+
+    const fetchEmail = async () => {
+      try {
+        const res = await fetch("http://localhost:8080/api/users/me");
+        if (res.ok) {
+          const data = await res.json();
+          setContactEmail(data.email || "");
+        }
+      } catch (err) {
+        console.error("Failed to fetch email:", err);
+      }
+    };
+
+    fetchEmail();
   }, [location]);
 
   const sectionIds = ["about", "skills", "projects"];
@@ -18,13 +33,17 @@ export default function Navbar() {
   const handleClick = (index) => {
     if (index < sectionIds.length) {
       const section = document.getElementById(sectionIds[index]);
-      if (section)
-        section.scrollIntoView({ behavior: "smooth" });
+      if (section) section.scrollIntoView({ behavior: "smooth" });
     } else if (index === 3) {
-      window.open(
-        "https://mail.google.com/mail/?view=cm&to=jsangma2002@gmail.com",
-        "_blank"
-      );
+      // Contact Me uses dynamic email from DB
+      if (contactEmail) {
+        window.open(
+          `https://mail.google.com/mail/?view=cm&to=${contactEmail}`,
+          "_blank"
+        );
+      } else {
+        alert("Contact email not available");
+      }
     }
   };
 
@@ -50,8 +69,7 @@ export default function Navbar() {
       const section = document.getElementById("hero");
       if (section) {
         const yOffset = -60;
-        const y =
-          section.getBoundingClientRect().top + window.pageYOffset + yOffset;
+        const y = section.getBoundingClientRect().top + window.pageYOffset + yOffset;
         window.scrollTo({ top: y, behavior: "smooth" });
       }
     }, 100);

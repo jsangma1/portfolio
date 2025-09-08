@@ -1,6 +1,8 @@
 // src/components/Admin.jsx
 import React, { useState, useEffect } from "react";
 import Navbar from "./Navbar";
+import axios from "axios";
+
 
 const Admin = () => {
   const [loaded, setLoaded] = useState(false);
@@ -19,6 +21,26 @@ const [project, setProject] = useState({
   techStack: "", // <-- added
 });
 
+const [allSkills, setAllSkills] = useState([]);
+const [allProjects, setAllProjects] = useState([]);
+
+useEffect(() => {
+  const fetchItems = async () => {
+    try {
+      const skillsRes = await fetch("http://localhost:8080/api/admin/skills");
+      const skillsData = await skillsRes.json();
+      setAllSkills(skillsData);
+
+      const projectsRes = await fetch("http://localhost:8080/api/admin/projects");
+      const projectsData = await projectsRes.json();
+      setAllProjects(projectsData);
+    } catch (err) {
+      console.error("Failed to fetch skills/projects:", err);
+    }
+  };
+
+  fetchItems();
+}, []);
 
   // About me state
   const [about, setAbout] = useState({
@@ -52,6 +74,9 @@ const handleAboutChange = (e) => {
   setAbout((prev) => ({ ...prev, [name]: value }));
 };
 
+const [showPassword, setShowPassword] = useState(false);
+
+
 
 const handleUpdate = async () => {
   try {
@@ -79,6 +104,32 @@ const handleUpdate = async () => {
     alert("Something went wrong!");
   }
 };
+useEffect(() => {
+  const timer = setTimeout(() => setLoaded(true), 200);
+
+  // Fetch current admin info on component mount
+  const fetchAdminData = async () => {
+    try {
+      const res = await fetch("http://localhost:8080/api/users/me");
+      if (res.ok) {
+        const data = await res.json();
+        setAbout({
+          bio: data.bio || "",
+          username: data.username || "",
+          contact: data.email || "",
+          password: "", // leave empty
+        });
+      } else {
+        console.error("Failed to fetch admin data");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  fetchAdminData();
+  return () => clearTimeout(timer);
+}, []);
 
 
   const handleDelete = () => {
@@ -215,13 +266,20 @@ const handleProjectSubmit = async (e) => {
 
 
   const filteredItems =
-    category === "skills"
-      ? skillImage
-          .map((f) => f.name)
-          .filter((name) => name.toLowerCase().startsWith(searchQuery.toLowerCase()))
-      : project.title && project.title.toLowerCase().startsWith(searchQuery.toLowerCase())
-      ? [project.title]
-      : [];
+  category === "skills"
+    ? allSkills
+        .map((s) => s.name)
+        .filter((name) =>
+          name.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+    : category === "projects"
+    ? allProjects
+        .map((p) => p.title)
+        .filter((title) =>
+          title.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+    : [];
+
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -384,105 +442,189 @@ const handleProjectSubmit = async (e) => {
     </div>
   </div>
 </section>
-
-        {/* About Me */}
-        <section
-          className={`w-screen flex justify-center transform transition-all duration-1000 delay-600 ${
-            loaded ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
-          }`}
-        >
-          <div className="w-[90%] bg-neutral-900 p-8 rounded-2xl shadow-lg">
-            <h2 className="text-2xl font-bold text-center mb-6">ABOUT ME</h2>
-            <div className="flex flex-col gap-4">
-              <textarea
-                name="bio"
-                placeholder="Edit About Me"
-                value={about.bio}
-                onChange={handleAboutChange}
-                className="w-full p-4 border border-gray-400 rounded-xl outline-none resize-none"
-              />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input
-                  type="text"
-                  name="username"
-                  placeholder="Change Username"
-                  value={about.username}
-                  onChange={handleAboutChange}
-                  className="rounded-full p-2 px-4 border border-gray-400 outline-none"
-                />
-                <input
-                  type="text"
-                  name="contact"
-                  placeholder="Change Contact"
-                  value={about.contact}
-                  onChange={handleAboutChange}
-                  className="rounded-full p-2 px-4 border border-gray-400 outline-none"
-                />
-                <input
-                  type="password"
-                  name="password"
-                  placeholder="Change Password"
-                  value={about.password}
-                  onChange={handleAboutChange}
-                  className="rounded-full p-2 px-4 border border-gray-400 outline-none"
-                />
-              </div>
-            </div>
-
-            <div className="flex justify-center mt-6">
-             <button
-  className="bg-white text-black py-3 px-8 rounded-full font-bold hover:scale-105 transition"
-  onClick={handleUpdate}
+{/* About Me */}
+<section
+  className={`w-screen flex justify-center transform transition-all duration-1000 delay-600 ${
+    loaded ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+  }`}
 >
-  Update Information
-</button>
+  <div className="w-[90%] bg-neutral-900 p-8 rounded-2xl shadow-lg">
+    <h2 className="text-2xl font-bold text-center mb-6 text-white">ABOUT ME</h2>
 
-            </div>
-          </div>
-        </section>
+    <div className="flex flex-col gap-4">
+      {/* Bio textarea */}
+      <textarea
+        name="bio"
+        placeholder="Edit About Me"
+        value={about.bio}
+        onChange={handleAboutChange}
+        className="w-full p-4 border border-gray-400 rounded-xl outline-none resize-none text-gray-900 bg-white placeholder-gray-500"
+      />
 
-        {/* Manage Skills/Projects */}
-        <section
-          className={`w-screen flex justify-center transform transition-all duration-1000 delay-800 ${
-            loaded ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
-          }`}
-        >
-          <div className="w-[90%] bg-neutral-900 p-8 rounded-2xl shadow-lg">
-            <h2 className="text-2xl font-bold text-center mb-6">
-              MANAGE SKILLS / PROJECTS
-            </h2>
+      {/* Username, Contact, Password */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input
+          type="text"
+          name="username"
+          placeholder="Change Username"
+          value={about.username}
+          onChange={handleAboutChange}
+          className="rounded-full p-2 px-4 border border-gray-400 outline-none text-gray-900 bg-white placeholder-gray-500"
+        />
+        <input
+          type="text"
+          name="contact"
+          placeholder="Change Contact / Email"
+          value={about.contact}
+          onChange={handleAboutChange}
+          className="rounded-full p-2 px-4 border border-gray-400 outline-none text-gray-900 bg-white placeholder-gray-500"
+        />
+      <div className="relative">
+  <input
+    type={showPassword ? "text" : "password"}
+    name="password"
+    placeholder="Change Password"
+    value={about.password}
+    onChange={handleAboutChange}
+    className="rounded-full p-2 px-4 border border-gray-400 outline-none text-gray-900 bg-white placeholder-gray-500 w-full"
+  />
+  <button
+    type="button"
+    onClick={() => setShowPassword(!showPassword)}
+    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+  >
+    {showPassword ? "Hide" : "Show"}
+  </button>
+</div>
 
-            <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-              {/* Category Selector */}
-              <select
-                className="p-3 rounded-full border border-gray-400 outline-none text-black"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-              >
-                <option value="">Select Category</option>
-                <option value="skills">Skills</option>
-                <option value="projects">Projects</option>
-              </select>
+      </div>
+    </div>
 
-              {/* Search Input */}
-              <input
-                type="text"
-                placeholder="Search..."
-                className="flex-1 p-3 rounded-full border border-gray-400 outline-none text-black"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+    {/* Update Button */}
+    <div className="flex justify-center mt-6">
+      <button
+        className="bg-white text-black py-3 px-8 rounded-full font-bold hover:scale-105 transition"
+        onClick={handleUpdate}
+      >
+        Update Information
+      </button>
+    </div>
+  </div>
+</section>
 
-              {/* Delete Button */}
-              <button
-                className="bg-white text-black py-2 px-6 rounded-full font-bold hover:scale-105 transition"
-                onClick={handleDelete}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </section>
+
+{/* Manage Skills/Projects */}
+<section
+  className={`w-screen flex justify-center transform transition-all duration-1000 delay-800 ${
+    loaded ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+  }`}
+>
+  <div className="w-[90%] bg-neutral-900 p-8 rounded-2xl shadow-lg">
+    <h2 className="text-2xl font-bold text-center mb-6">
+      MANAGE SKILLS / PROJECTS
+    </h2>
+
+    <div className="flex flex-col md:flex-row gap-4 items-center justify-between relative">
+      {/* Category Selector */}
+      <select
+        className="p-3 rounded-full border border-gray-400 outline-none text-black"
+        value={category}
+        onChange={(e) => {
+          setCategory(e.target.value);
+          setSearchQuery("");
+          setSelectedItem(null);
+        }}
+      >
+        <option value="">Select Category</option>
+        <option value="skills">Skills</option>
+        <option value="projects">Projects</option>
+      </select>
+
+      {/* Search Input with hints */}
+      <div className="relative flex-1">
+        <input
+          type="text"
+          placeholder="Search..."
+          className="w-full p-3 rounded-full border border-gray-400 outline-none text-black"
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            setSelectedItem(null); // reset selected item
+          }}
+        />
+
+       {filteredItems.length > 0 && (
+  <ul className="absolute top-full left-0 w-full bg-white text-black rounded-b-lg border border-t-0 border-gray-400 max-h-40 overflow-y-auto z-10">
+    {filteredItems.map((name) => (
+      <li
+        key={name}
+        onClick={() => {
+          setSearchQuery(name);
+          setSelectedItem(name);
+        }}
+        className="px-4 py-2 cursor-pointer hover:bg-gray-300"
+      >
+        {name}
+      </li>
+    ))}
+  </ul>
+)}
+
+      </div>
+
+      {/* Delete Button */}
+      <button
+        className="bg-white text-black py-2 px-6 rounded-full font-bold hover:scale-105 transition"
+       onClick={async () => {
+  if (!selectedItem) {
+    alert("Please select an item to delete!");
+    return;
+  }
+  const confirmDelete = window.confirm(
+    `Are you sure you want to delete "${selectedItem}" from ${category}?`
+  );
+  if (!confirmDelete) return;
+
+  try {
+    if (category === "skills") {
+      await axios.delete(
+        `http://localhost:8080/api/admin/skills/deleteByName/${selectedItem}`
+      );
+      setSkillImage(prev => prev.filter(f => f.name !== selectedItem));
+    } else if (category === "projects") {
+      await axios.delete(
+        `http://localhost:8080/api/admin/projects/deleteByTitle/${selectedItem}`
+      );
+      if (project.title === selectedItem) {
+        setProject({
+          ...project,
+          title: "",
+          demo: "",
+          docs: "",
+          image: null,
+          description: "",
+          techStack: "",
+        });
+      }
+    }
+
+    alert(`"${selectedItem}" deleted from ${category}!`);
+    setSelectedItem(null);
+    setSearchQuery("");
+  } catch (error) {
+    console.error(error);
+    alert("Failed to delete. Check console for details.");
+  }
+}}
+
+          
+      >
+        Delete
+      </button>
+    </div>
+  </div>
+</section>
+
       </div>
     </div>
   );
